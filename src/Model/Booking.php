@@ -14,12 +14,18 @@ class Booking
     private array $agendas;
 
     /**
+     * @var Place[]
+     */
+    private array $places;
+
+    /**
      * @param Agenda[] $agendas
      */
-    public function __construct(Profile $profile, array $agendas)
+    public function __construct(Profile $profile, array $agendas, array $places)
     {
         $this->profile = $profile;
         $this->agendas = $agendas;
+        $this->places = $places;
     }
 
     public function getProfile(): Profile
@@ -33,6 +39,14 @@ class Booking
     public function getAgendas(): array
     {
         return $this->agendas;
+    }
+
+    /**
+     * @return Place[]
+     */
+    public function getPlaces(): array
+    {
+        return $this->places;
     }
 
     /**

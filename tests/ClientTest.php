@@ -121,6 +121,7 @@ class ClientTest extends TestCase
         $this->assertInstanceOf(Booking::class, $booking);
         $this->assertSame('Dr Anne MARTIN', $booking->getProfile()->getNameWithTitle());
         $this->assertCount(3, $booking->getAgendas());
+        $this->assertCount(2, $booking->getPlaces());
     }
 
     public function testGetBookingProfileNotFoundThrows404(): void

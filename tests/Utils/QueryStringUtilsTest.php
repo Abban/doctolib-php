@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctolib\Test\Utils;
 
+use Doctolib\Utils\QueryStringUtils;
 use PHPUnit\Framework\TestCase;
 
 /**

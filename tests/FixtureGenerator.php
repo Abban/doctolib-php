@@ -8,6 +8,7 @@ use Doctolib\Model\Agenda;
 use Doctolib\Model\Appointment;
 use Doctolib\Model\Booking;
 use Doctolib\Model\Patient;
+use Doctolib\Model\Place;
 use Doctolib\Model\Point;
 use Doctolib\Model\Profile;
 use Doctolib\Model\Speciality;
@@ -93,11 +94,17 @@ class FixtureGenerator
         );
     }
 
+    public static function createPlace(): Place
+    {
+        return new Place('place-78520', [78520]);
+    }
+
     public static function createBooking(): Booking
     {
         return new Booking(
             self::createProfile(),
             [self::createAgenda()],
+            [self::createPlace()],
         );
     }
 
@@ -106,6 +113,7 @@ class FixtureGenerator
         return new Booking(
             self::createProfile(),
             [self::createAgenda()],
+            [self::createPlace()],
         );
     }
 
