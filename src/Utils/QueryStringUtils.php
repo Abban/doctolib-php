@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doctolib\Test\Utils;
+namespace Doctolib\Utils;
 
 class QueryStringUtils
 {

@@ -19,7 +19,7 @@ use Doctolib\Model\Slot;
 use Doctolib\Model\Speciality;
 use Doctolib\Model\Step;
 use Doctolib\Model\VisitMotive;
-use Doctolib\Test\Utils\QueryStringUtils;
+use Doctolib\Utils\QueryStringUtils;
 use Doctolib\Utils\ArrayUtils;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\OptionsResolver\OptionsResolver;
