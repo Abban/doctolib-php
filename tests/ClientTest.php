@@ -37,6 +37,8 @@ class ClientTest extends TestCase
 {
     use ProphecyTrait;
 
+    private const BASE_URI = 'https://www.doctolib.fr';
+
     private SerializerInterface $serializer;
 
     protected function setUp(): void
@@ -52,7 +54,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createSearchProfiles(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
 
         $results = $client->searchProfilesBySpecialityAndLocation('foo', 'bar', ['latitude' => 10.0, 'longitude' => 5.0]);
 
@@ -94,7 +96,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createAutocomplete(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
 
         $response = $client->search('foo');
 
@@ -114,7 +116,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createBooking(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
 
         $booking = $client->getBooking('docteur-denfer');
 
@@ -137,7 +139,7 @@ class ClientTest extends TestCase
 
         $httpClient = new MockHttpClient($responses);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
 
         $this->expectException(DataNotFoundException::class);
         $this->expectExceptionMessage('Doctor with slug "foo" not found');
@@ -151,7 +153,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createAvailabilities(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
 
         $agenda = FixtureGenerator::createAgenda(); // $agenda data is not used in this test
         $availabilities = $client->getAvailabilities([$agenda], null, null);
@@ -178,7 +180,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
 
         $agenda = FixtureGenerator::createAgenda();
 
@@ -195,7 +197,7 @@ class ClientTest extends TestCase
         $httpClient = $this->prophesize(HttpClientInterface::class);
         $httpClient->request('GET', '/availabilities.json', Argument::type('array'))->shouldNotBeCalled();
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
 
         $agenda = FixtureGenerator::createAgenda();
 
@@ -220,7 +222,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
 
         $agendas = [
             FixtureGenerator::createAgenda(),
@@ -275,7 +277,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response2->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
 
         $agenda = FixtureGenerator::createAgenda();
 
@@ -288,7 +290,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createMasterPatient(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Not authenticated.');
@@ -302,7 +304,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createMasterPatient(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
         $client->setSessionId('test-session-id');
 
         $patient = $client->getMasterPatient();
@@ -343,7 +345,7 @@ class ClientTest extends TestCase
         $httpClient = new MockHttpClient($responses);
         $serializer = $this->prophesize(SerializerInterface::class);
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $this->expectException(AuthenticationException::class);
@@ -369,7 +371,7 @@ class ClientTest extends TestCase
         $httpClient = new MockHttpClient($responses);
         $serializer = $this->prophesize(SerializerInterface::class);
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $this->expectException(\RuntimeException::class);
@@ -401,7 +403,7 @@ class ClientTest extends TestCase
             ->shouldBeCalledOnce()
             ->willReturn(FixtureGenerator::createPatient());
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
 
         $client->auth('foo@bar.com', 'P@s$wØrd');
     }
@@ -437,7 +439,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
         $client->setSessionId('test-session-id');
 
         $booking = FixtureGenerator::createBooking();
@@ -498,7 +500,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
         $client->setSessionId('test-session-id');
 
         $booking = FixtureGenerator::createBooking();
@@ -528,7 +530,7 @@ class ClientTest extends TestCase
     public function testCreateMultiStepAppointmentWithoutSteps(): void
     {
         $httpClient = $this->prophesize(HttpClientInterface::class);
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
 
         $booking = FixtureGenerator::createBooking();
         $slot = new Slot(
@@ -574,7 +576,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
         $client->setSessionId('test-session-id');
 
         $booking = FixtureGenerator::createBooking();
@@ -647,7 +649,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
         $client->setSessionId('test-session-id');
 
         $appointment = FixtureGenerator::createAppointment();
@@ -660,7 +662,7 @@ class ClientTest extends TestCase
     {
         $httpClient = $this->prophesize(HttpClientInterface::class);
         $serializer = $this->prophesize(SerializerInterface::class);
-        $client = new Client($httpClient->reveal(), $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $appointment = FixtureGenerator::createAppointment();
@@ -678,7 +680,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createPatientAppointments(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
         $client->setSessionId('test-session-id');
 
         $results = $client->getUpcomingAppointments();
@@ -700,7 +702,7 @@ class ClientTest extends TestCase
             ResponseFixtureFactory::createAppointment(),
         ]);
 
-        $client = new Client($httpClient, $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient, $this->serializer);
         $client->setSessionId('test-session-id');
 
         $appointment = $client->getAppointment('2393464-foobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobarfoobar=--fa9387e2592cf242c4851e3b31b7f41eb211606f');
@@ -730,7 +732,7 @@ class ClientTest extends TestCase
             ],
         ])->shouldBeCalledOnce()->willReturn($response->reveal());
 
-        $client = new Client($httpClient->reveal(), $this->serializer);
+        $client = new Client(self::BASE_URI, $httpClient->reveal(), $this->serializer);
         $client->setSessionId('test-session-id');
 
         $appointment = FixtureGenerator::createAppointment();

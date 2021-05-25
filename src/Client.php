@@ -41,11 +41,11 @@ class Client
 {
     use ClientTrait;
 
-    private const BASE_URI = 'https://www.doctolib.fr';
-
     private const SESSION_COOKIE_KEY = '_doctolib_session';
 
     private const TEMPORARY_APPOINTMENT_ID_COOKIE_KEY = 'temporary_appointment_id';
+
+    private string $baseUrl;
 
     private HttpClientInterface $httpClient;
 
@@ -53,8 +53,9 @@ class Client
 
     private ?string $sessionId = null;
 
-    public function __construct(HttpClientInterface $httpClient, SerializerInterface $serializer = null)
+    public function __construct(string $baseUrl, HttpClientInterface $httpClient, SerializerInterface $serializer = null)
     {
+        $this->baseUrl = $baseUrl;
         $this->httpClient = $httpClient;
         $this->serializer = $serializer ?? SerializerFactory::create();
     }
@@ -80,7 +81,7 @@ class Client
         Assert::email($email);
 
         $response = $this->httpClient->request('POST', '/login.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'json' => [
                 'username' => $email,
                 'password' => $password,
@@ -118,7 +119,7 @@ class Client
         $this->checkIsAuthenticated();
 
         $response = $this->httpClient->request('GET', '/account/main_master_patient.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'headers' => [
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),
             ],
@@ -143,7 +144,7 @@ class Client
     public function search(string $query, bool $specialitiesOnly = false): array
     {
         $response = $this->httpClient->request('GET', '/api/searchbar/autocomplete.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'query' => [
                 'search' => $query,
                 'specialities_only' => $specialitiesOnly,
@@ -196,7 +197,7 @@ class Client
         $response = $this->httpClient->request(
             'GET',
             QueryStringUtils::createUrlWithQueryString($url, $query), [
-                'base_uri' => self::BASE_URI,
+                'base_uri' => $this->baseUrl,
             ]);
 
         $this->checkJsonResponse($response);
@@ -217,7 +218,7 @@ class Client
     public function getBooking(string $doctorSlug): Booking
     {
         $response = $this->httpClient->request('GET', sprintf('/booking/%s.json', $doctorSlug), [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
         ]);
 
         if (404 === $response->getStatusCode()) {
@@ -285,7 +286,7 @@ class Client
         ];
 
         $response = $this->httpClient->request('GET', '/availabilities.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'query' => $query,
         ]);
 
@@ -339,7 +340,7 @@ class Client
         ];
 
         $response = $this->httpClient->request('POST', '/appointments.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'json' => $body,
             'headers' => [
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),
@@ -394,7 +395,7 @@ class Client
         ];
 
         $response = $this->httpClient->request('POST', '/appointments.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'json' => $body,
             'headers' => [
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),
@@ -418,7 +419,7 @@ class Client
         $body['second_slot'] = $secondStep->getStartDate()->format(\DateTimeInterface::RFC3339_EXTENDED);
 
         $response = $this->httpClient->request('POST', '/appointments.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'json' => $body,
             'headers' => [
                 'Cookie' => sprintf(
@@ -471,7 +472,7 @@ class Client
 
         $url = sprintf('/appointments/%s.json', $appointment->getId());
         $response = $this->httpClient->request('PUT', $url, [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'json' => $body,
             'headers' => [
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),
@@ -490,7 +491,7 @@ class Client
 
         // todo: add pagination support
         $response = $this->httpClient->request('GET', '/account/appointments.json', [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'headers' => [
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),
             ],
@@ -511,7 +512,7 @@ class Client
         $url = sprintf('/appointments/%s.json', $appointmentId);
 
         $response = $this->httpClient->request('GET', $url, [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'headers' => [
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),
             ],
@@ -529,7 +530,7 @@ class Client
 
         $url = sprintf('/account/appointments/%s.json', $appointment->getId());
         $response = $this->httpClient->request('DELETE', $url, [
-            'base_uri' => self::BASE_URI,
+            'base_uri' => $this->baseUrl,
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Cookie' => sprintf('%s=%s', self::SESSION_COOKIE_KEY, $this->sessionId),

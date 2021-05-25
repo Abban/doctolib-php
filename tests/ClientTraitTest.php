@@ -21,6 +21,8 @@ class ClientTraitTest extends TestCase
 {
     use ProphecyTrait;
 
+    private const BASE_URI = 'https://www.doctolib.fr';
+
     public function testInvalidContentTypeThrowsException(): void
     {
         $responses = [
@@ -30,7 +32,7 @@ class ClientTraitTest extends TestCase
         $httpClient = new MockHttpClient($responses);
         $serializer = $this->prophesize(SerializerInterface::class);
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $this->expectException(\RuntimeException::class);
@@ -48,7 +50,7 @@ class ClientTraitTest extends TestCase
         $httpClient = new MockHttpClient($responses);
         $serializer = $this->prophesize(SerializerInterface::class);
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $this->expectException(\RuntimeException::class);
@@ -68,7 +70,7 @@ class ClientTraitTest extends TestCase
         $httpClient = new MockHttpClient($responses);
         $serializer = $this->prophesize(SerializerInterface::class);
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $this->expectException(\RuntimeException::class);
@@ -92,7 +94,7 @@ class ClientTraitTest extends TestCase
         $httpClient = new MockHttpClient($responses);
         $serializer = $this->prophesize(SerializerInterface::class);
 
-        $client = new Client($httpClient, $serializer->reveal());
+        $client = new Client(self::BASE_URI, $httpClient, $serializer->reveal());
         $client->setSessionId('test-session-id');
 
         $this->expectException(UnavailableSlotException::class);
